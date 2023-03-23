@@ -22,7 +22,7 @@ from tkinter import *
 ## Jarvis config
 
 # Initialize OpenAI API
-openai.api_key = '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'
+openai.api_key = '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'
 
 print('Ava initializing')
 
@@ -42,12 +42,12 @@ def speak(text):
 
 
 # Variable spoken greeting function based on time of day
-def TimeGreet():
+def timeGreet():
     hour = int(datetime.datetime.now().hour)
 
     if hour >= 4 and hour < 12:
         speak('Good morning Mister Carbis. How can I assist you.')
-        print('Good morning Mister Carbis. How can I assist you.')
+        print('Good morning Mr. Carbis. How can I assist you.')
 
     elif hour >= 12 and hour < 18:
         speak('Good afternoon mister Carbis. How can I assist you.')
@@ -55,10 +55,11 @@ def TimeGreet():
 
     else:
         speak('Good Evening Mister Carbis. How can I assist you.')
-        print('Good Evening Mister Carbis. How can I assist you.')
+        print('Good Evening Mr. Carbis. How can I assist you.')
 
 # Function for taking commands from user mic
-def TakeCommand():
+def takeCommand():
+    global query
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print('Listening...')
@@ -72,22 +73,34 @@ def TakeCommand():
     except Exception as e:
         speak("I'm sorry i didn't quite catch that")
         print("I'm sorry i didn't quite catch that")
+        return("I'm sorry i didn't quite catch that")
     return query
 
 
-# Function for user recognition... kinda
-def GetUser():
+# Function for user recognition... kinda lame
+def getUser():
     speak('Hello... who are you?')
     print('Hello... who are you?')
-    if 'Chaz' in TakeCommand():
-        TimeGreet()
+    if 'Chaz' in takeCommand():
+        timeGreet()
 
     else:
         speak('You are not my primary user. What was your name again?')
         print('You are not my primary user. What was your name again?')
-        name = TakeCommand()
+        name = takeCommand()
         speak(f'hello {name}. How can i assist you?')
         print(f'hello {name}. How can i assist you?')
+
+# Function for getting time
+def timeNow():
+    time_now = datetime.datetime.now().strftime('%H:%M')
+    (hour, minute) = time_now.split(':')
+    if int(hour) > 12:
+        hour = int(hour) - 12
+        rightTime = str(hour) + ':' + str(minute)
+    else:
+        rightTime = time_now
+    return rightTime
 
 # Function for getting date
 def getDate():
@@ -108,7 +121,7 @@ def getDate():
     speak('Today is ' + month_names[monthNum - 1] + ' the ' + ordinalNumbers[dayNum - 1])
     print('Today is ' + month_names[monthNum - 1] + ' the ' + ordinalNumbers[dayNum - 1])
 
-
+# Function for passing prompts to GPT-3
 def generate_response(prompt):
     response = openai.Completion.create(
         engine='text-davinci-003',
@@ -121,13 +134,9 @@ def generate_response(prompt):
     return response['choices'][0]['text']
 
 # Main Program
-# Jarvis 'brain'
-
-speak('Ava Initializing...')
-GetUser()
-
+# Ava's 'brain'
 def main():
-    query = TakeCommand()
+    query = takeCommand()
 
     # Logic for handling queries
     if 'open youtube' in query.lower():
@@ -147,13 +156,9 @@ def main():
         print('No problem')
 
     elif 'the time' in query.lower():
-        time_now = datetime.datetime.now().strftime('%H:%M')
-        (hour, minute) = time_now.split(':')
-        if int(hour) > 12:
-            hour = int(hour) - 12
-            btrTime = str(hour) + ' ' + str(minute)
-        speak(f'It is currently {btrTime}')
-        print(f'It is currently {btrTime}')
+        response = timeNow()
+        speak(f'It is currently {response}')
+        print(f'It is currently {response}')
 
     elif 'my projects' in query.lower():
         path = 'C:/Users/karat/Code'
@@ -171,5 +176,8 @@ def main():
         speak(response)
         print(response)
 
+# Running Ava
+speak('Ava Initializing...')
+getUser()
 while True:
     main()
