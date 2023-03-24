@@ -22,7 +22,7 @@ from tkinter import *
 ## Jarvis config
 
 # Initialize OpenAI API
-openai.api_key = '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'
+openai.api_key = "YOUR API KEY HERE"
 
 print('Ava initializing')
 
